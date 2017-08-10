@@ -25,7 +25,7 @@ resource "aws_vpc" "env" {
   cidr_block                       = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
   enable_dns_support               = true
   enable_dns_hostnames             = true
-  assign_generated_ipv6_cidr_block = "${var.want_ipv6 == "0" ? "false" : "true" }"
+  assign_generated_ipv6_cidr_block = true
 
   tags {
     "Name"      = "${var.env_name}"
@@ -166,7 +166,7 @@ resource "aws_route" "public" {
 resource "aws_route" "public_v6" {
   route_table_id              = "${aws_route_table.public.id}"
   destination_ipv6_cidr_block = "::/0"
-  egress_only_gateway_id      = "${aws_egress_only_internet_gateway.env.id}"
+  gateway_id                  = "${aws_internet_gateway.env.id}"
   count                       = 1
 }
 
