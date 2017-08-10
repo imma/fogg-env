@@ -43,7 +43,7 @@ variable "want_nat" {
 }
 
 variable "want_ipv6" {
-  default = "0"
+  default = "1"
 }
 
 variable "want_digitalocean" {
