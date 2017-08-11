@@ -140,6 +140,10 @@ output "public_subnets" {
   value = ["${aws_subnet.public.*.id}"]
 }
 
+output "common_subnets" {
+  value = ["${aws_subnet.common.*.id}"]
+}
+
 output "env_name" {
   value = "${var.env_name}"
 }
