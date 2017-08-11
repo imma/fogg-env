@@ -148,6 +148,10 @@ output "common_subnets" {
   value = ["${aws_subnet.common.*.id}"]
 }
 
+output "fake_subnets" {
+  value = ["${null_resource.fake.*.triggers.meh}"]
+}
+
 output "env_name" {
   value = "${var.env_name}"
 }

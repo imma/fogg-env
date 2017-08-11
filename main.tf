@@ -146,6 +146,14 @@ resource "aws_egress_only_internet_gateway" "env" {
   count  = 1
 }
 
+resource "null_resource" "fake" {
+  count = "${var.az_count}"
+
+  triggers {
+    meh = "meh"
+  }
+}
+
 resource "aws_subnet" "public" {
   vpc_id                          = "${aws_vpc.env.id}"
   availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
