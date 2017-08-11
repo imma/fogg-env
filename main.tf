@@ -143,11 +143,13 @@ resource "aws_egress_only_internet_gateway" "env" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id                  = "${aws_vpc.env.id}"
-  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(split(" ",data.terraform_remote_state.global.org["sys_public"]),count.index))}"
-  map_public_ip_on_launch = true
-  count                   = "${var.az_count}"
+  vpc_id                          = "${aws_vpc.env.id}"
+  availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(split(" ",data.terraform_remote_state.global.org["sys_public"]),count.index))}"
+  map_public_ip_on_launch         = true
+  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.terraform_remote_state.global.org["sys_public_v6"]),count.index))}"
+  assign_ipv6_address_on_creation = true
+  count                           = "${var.az_count}"
 
   tags {
     "Name"      = "${var.env_name}-public"
@@ -170,12 +172,6 @@ resource "aws_route" "public_v6" {
   count                       = 0
 }
 
-resource "aws_route" "public_v6_igw" {
-  route_table_id              = "${aws_route_table.public.id}"
-  destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = "${aws_internet_gateway.env.id}"
-}
-
 resource "aws_route_table_association" "public" {
   subnet_id      = "${element(aws_subnet.public.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.public.*.id,count.index)}"
@@ -196,6 +192,59 @@ resource "aws_route_table" "public" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
+  }
+}
+
+resource "aws_subnet" "common" {
+  vpc_id                          = "${aws_vpc.env.id}"
+  availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(split(" ",data.terraform_remote_state.global.org["sys_common"]),count.index))}"
+  map_public_ip_on_launch         = false
+  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.terraform_remote_state.global.org["sys_common_v6"]),count.index))}"
+  assign_ipv6_address_on_creation = true
+  count                           = "${var.az_count}"
+
+  tags {
+    "Name"      = "${var.env_name}-common"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_route" "common" {
+  route_table_id         = "${element(aws_route_table.common.*.id,count.index)}"
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
+  count                  = "${var.want_nat*var.az_count}"
+}
+
+resource "aws_route" "common_v6" {
+  route_table_id              = "${aws_route_table.common.id}"
+  destination_ipv6_cidr_block = "::/0"
+  egress_only_gateway_id      = "${aws_egress_only_internet_gateway.env.id}"
+  count                       = 0
+}
+
+resource "aws_route_table_association" "common" {
+  subnet_id      = "${element(aws_subnet.common.*.id,count.index)}"
+  route_table_id = "${element(aws_route_table.common.*.id,count.index)}"
+  count          = "${var.az_count}"
+}
+
+resource "aws_vpc_endpoint_route_table_association" "s3_common" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
+  route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
+  count           = "${var.az_count}"
+}
+
+resource "aws_route_table" "common" {
+  vpc_id = "${aws_vpc.env.id}"
+  count  = "${var.az_count}"
+
+  tags {
+    "Name"      = "${var.env_name}-common"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
   }
 }
 
@@ -251,50 +300,6 @@ resource "aws_route_table" "nat" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
-  }
-}
-
-resource "aws_subnet" "common" {
-  vpc_id                  = "${aws_vpc.env.id}"
-  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(split(" ",data.terraform_remote_state.global.org["sys_common"]),count.index))}"
-  map_public_ip_on_launch = false
-  count                   = "${var.az_count}"
-
-  tags {
-    "Name"      = "${var.env_name}-common"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-  }
-}
-
-resource "aws_route" "common" {
-  route_table_id         = "${element(aws_route_table.common.*.id,count.index)}"
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
-  count                  = "${var.want_nat*var.az_count}"
-}
-
-resource "aws_route_table_association" "common" {
-  subnet_id      = "${element(aws_subnet.common.*.id,count.index)}"
-  route_table_id = "${element(aws_route_table.common.*.id,count.index)}"
-  count          = "${var.az_count}"
-}
-
-resource "aws_vpc_endpoint_route_table_association" "s3_common" {
-  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
-  route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
-  count           = "${var.az_count}"
-}
-
-resource "aws_route_table" "common" {
-  vpc_id = "${aws_vpc.env.id}"
-  count  = "${var.az_count}"
-
-  tags {
-    "Name"      = "${var.env_name}-common"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
   }
 }
 
