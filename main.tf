@@ -13,6 +13,10 @@ data "terraform_remote_state" "global" {
   }
 }
 
+data "external" "org" {
+  program = ["${var.org}"]
+}
+
 data "aws_vpc" "current" {
   id = "${aws_vpc.env.id}"
 }
@@ -22,7 +26,7 @@ data "aws_availability_zones" "azs" {}
 data "aws_partition" "current" {}
 
 resource "aws_vpc" "env" {
-  cidr_block                       = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
+  cidr_block                       = "${data.external.org.result["cidr_${var.env_name}"]}"
   enable_dns_support               = true
   enable_dns_hostnames             = true
   assign_generated_ipv6_cidr_block = true
@@ -145,9 +149,9 @@ resource "aws_egress_only_internet_gateway" "env" {
 resource "aws_subnet" "public" {
   vpc_id                          = "${aws_vpc.env.id}"
   availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(split(" ",data.terraform_remote_state.global.org["sys_public"]),count.index))}"
+  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(split(" ",data.external.org.result["sys_public"]),count.index))}"
   map_public_ip_on_launch         = true
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.terraform_remote_state.global.org["sys_public_v6"]),count.index))}"
+  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.external.org.result["sys_public_v6"]),count.index))}"
   assign_ipv6_address_on_creation = true
   count                           = "${var.az_count}"
 
@@ -198,9 +202,9 @@ resource "aws_route_table" "public" {
 resource "aws_subnet" "common" {
   vpc_id                          = "${aws_vpc.env.id}"
   availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(split(" ",data.terraform_remote_state.global.org["sys_common"]),count.index))}"
+  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(split(" ",data.external.org.result["sys_common"]),count.index))}"
   map_public_ip_on_launch         = false
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.terraform_remote_state.global.org["sys_common_v6"]),count.index))}"
+  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.external.org.result["sys_common_v6"]),count.index))}"
   assign_ipv6_address_on_creation = true
   count                           = "${var.az_count}"
 
@@ -256,7 +260,7 @@ resource "aws_eip" "nat" {
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(split(" ",data.terraform_remote_state.global.org["sys_nat"]),count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(split(" ",data.external.org.result["sys_nat"]),count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
 
@@ -363,7 +367,7 @@ resource "aws_s3_bucket" "lb" {
     "Effect": "Allow",
     "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb/*",
     "Principal": {
-      "AWS": "arn:aws:iam::${lookup(data.terraform_remote_state.global.org,"aws_account_${var.env_name}")}:root"
+      "AWS": "arn:aws:iam::${lookup(data.external.org.result,"aws_account_${var.env_name}")}:root"
     }
   }]
 }

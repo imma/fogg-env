@@ -1,5 +1,9 @@
 variable "env_name" {}
 
+variable "org" {
+  default = []
+}
+
 variable "az_count" {}
 
 variable "nat_count" {
