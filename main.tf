@@ -150,7 +150,7 @@ resource "null_resource" "fake" {
   count = "${var.az_count}"
 
   triggers {
-    meh = "meh"
+    meh = ""
   }
 }
 
