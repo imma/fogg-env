@@ -27,7 +27,7 @@ data "aws_partition" "current" {}
 
 resource "aws_vpc" "env" {
   cidr_block                       = "${data.external.org.result["cidr_${var.env_name}"]}"
-  enable_dns_support               = false
+  enable_dns_support               = true
   enable_dns_hostnames             = false
   assign_generated_ipv6_cidr_block = true
 
