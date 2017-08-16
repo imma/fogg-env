@@ -196,6 +196,12 @@ resource "aws_vpc_endpoint_route_table_association" "s3_public" {
   count           = "${var.az_count}"
 }
 
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_public" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb.id}"
+  route_table_id  = "${element(aws_route_table.public.*.id,count.index)}"
+  count           = "${var.az_count}"
+}
+
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.env.id}"
 
@@ -249,6 +255,12 @@ resource "aws_vpc_endpoint_route_table_association" "s3_common" {
   count           = "${var.az_count}"
 }
 
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_common" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb.id}"
+  route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
+  count           = "${var.az_count}"
+}
+
 resource "aws_route_table" "common" {
   vpc_id = "${aws_vpc.env.id}"
   count  = "${var.az_count}"
@@ -294,6 +306,12 @@ resource "aws_route_table_association" "nat" {
 
 resource "aws_vpc_endpoint_route_table_association" "s3_nat" {
   vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
+  route_table_id  = "${element(aws_route_table.nat.*.id,count.index)}"
+  count           = "${var.az_count}"
+}
+
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_nat" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb.id}"
   route_table_id  = "${element(aws_route_table.nat.*.id,count.index)}"
   count           = "${var.az_count}"
 }
@@ -608,6 +626,15 @@ data "aws_vpc_endpoint_service" "s3" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id       = "${aws_vpc.env.id}"
   service_name = "${data.aws_vpc_endpoint_service.s3.service_name}"
+}
+
+data "aws_vpc_endpoint_service" "dynamodb" {
+  service = "dynamodb"
+}
+
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id       = "${aws_vpc.env.id}"
+  service_name = "${data.aws_vpc_endpoint_service.dynamodb.service_name}"
 }
 
 resource "aws_default_vpc_dhcp_options" "default" {}
