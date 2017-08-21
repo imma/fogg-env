@@ -603,6 +603,17 @@ resource "digitalocean_ssh_key" "service" {
   count = "${var.want_digitalocean}"
 }
 
+resource "packet_ssh_key" "service" {
+  name       = "${var.env_name}"
+  public_key = "${data.template_file.key_pair_service.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  count = "${var.want_packet}"
+}
+
 resource "aws_kms_key" "env" {
   description         = "Environment ${var.env_name}"
   enable_key_rotation = true

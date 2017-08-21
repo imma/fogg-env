@@ -54,6 +54,10 @@ variable "want_digitalocean" {
   default = "0"
 }
 
+variable "want_packet" {
+  default = "0"
+}
+
 variable "public_key" {}
 
 output "vpc_id" {
