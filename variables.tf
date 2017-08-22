@@ -189,5 +189,9 @@ output "egw_gateway" {
 }
 
 output "kms_arn" {
-  value = "${var.want_kms ? aws_kms_key.env.arn : data.terraform_remote_state.org.kms_arn}"
+  value = "${element(coalescelist(aws_kms_key.env.*.arn,list(data.terraform_remote_state.org.kms_arn)),0)}"
+}
+
+output "kms_key_id" {
+  value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(data.terraform_remote_state.org.kms_key_id)),0)}"
 }
