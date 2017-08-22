@@ -2,7 +2,7 @@ variable "global_bucket" {}
 variable "global_key" {}
 variable "global_region" {}
 
-data "terraform_remote_state" "global" {
+data "terraform_remote_state" "org" {
   backend = "s3"
 
   config {
@@ -334,7 +334,7 @@ resource "aws_route_table" "nat" {
 }
 
 resource "aws_route53_zone" "private" {
-  name   = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${var.env_domain_name == 1 ? var.env_domain_name : data.terraform_remote_state.global.domain_name}"
+  name   = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${var.env_domain_name == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   vpc_id = "${aws_vpc.env.id}"
 
   tags {
@@ -362,7 +362,7 @@ module "efs" {
 
 resource "aws_route53_record" "efs" {
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "efs.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.global.domain_name}"
+  name    = "efs.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.efs.efs_dns_names,count.index)}"]
@@ -370,7 +370,7 @@ resource "aws_route53_record" "efs" {
 }
 
 resource "aws_s3_bucket" "lb" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-lb"
   acl    = "private"
 
   depends_on = ["aws_s3_bucket.s3"]
@@ -380,7 +380,7 @@ resource "aws_s3_bucket" "lb" {
   }
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
     target_prefix = "log/"
   }
 
@@ -391,7 +391,7 @@ resource "aws_s3_bucket" "lb" {
     "Sid": "",
     "Action": "s3:PutObject",
     "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb/*",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-lb/*",
     "Principal": {
       "AWS": "arn:aws:iam::${lookup(data.external.org.result,"aws_account_${var.env_name}")}:root"
     }
@@ -455,7 +455,7 @@ resource "aws_flow_log" "env" {
 }
 
 resource "aws_s3_bucket" "meta" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-meta"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-meta"
   acl    = "log-delivery-write"
 
   versioning {
@@ -469,13 +469,13 @@ resource "aws_s3_bucket" "meta" {
 }
 
 resource "aws_s3_bucket" "s3" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
   acl    = "log-delivery-write"
 
   depends_on = ["aws_s3_bucket.meta"]
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-meta"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-meta"
     target_prefix = "log/"
   }
 
@@ -490,13 +490,13 @@ resource "aws_s3_bucket" "s3" {
 }
 
 resource "aws_s3_bucket" "ses" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses"
   acl    = "private"
 
   depends_on = ["aws_s3_bucket.s3"]
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
     target_prefix = "log/"
   }
 
@@ -511,13 +511,13 @@ resource "aws_s3_bucket" "ses" {
     "Sid": "",
     "Action": "s3:PutObject",
     "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses/*",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses/*",
     "Principal": {
       "Service": "ses.amazonaws.com"
     },
     "Condition": {
       "StringEquals": {
-        "aws:Referer": "${data.terraform_remote_state.global.aws_account_id}"
+        "aws:Referer": "${data.terraform_remote_state.org.aws_account_id}"
       }
     }
   }]
@@ -531,13 +531,13 @@ EOF
 }
 
 resource "aws_s3_bucket" "ssm" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm"
   acl    = "private"
 
   depends_on = ["aws_s3_bucket.s3"]
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
     target_prefix = "log/"
   }
 
@@ -552,7 +552,7 @@ resource "aws_s3_bucket" "ssm" {
     "Sid": "",
     "Action": "s3:GetBucketAcl",
     "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm",
     "Principal": {
       "Service": "ssm.amazonaws.com"
     }
@@ -561,7 +561,7 @@ resource "aws_s3_bucket" "ssm" {
     "Sid": "",
     "Action": "s3:PutObject",
     "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.global.aws_account_id}/*",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.org.aws_account_id}/*",
     "Principal": {
       "Service": "ssm.amazonaws.com"
     },
