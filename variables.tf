@@ -189,5 +189,5 @@ output "egw_gateway" {
 }
 
 output "kms_arn" {
-  value = "${aws_kms_alias.env.target_key_id}"
+  value = "${var.want_kms ? aws_kms_key.env.arn : data.terraform_remote_state.org.kms_arn}"
 }
