@@ -623,11 +623,13 @@ resource "aws_kms_key" "env" {
     "Env"       = "${var.env_name}"
     "Name"      = "${var.env_name}"
   }
+
+  count = "${var.want_kms}"
 }
 
 resource "aws_kms_alias" "env" {
   name          = "alias/${var.env_name}"
-  target_key_id = "${aws_kms_key.env.id}"
+  target_key_id = "${coalesce(aws_kms_key.env.id,data.terraform_remote_state.org.kms_arn)}"
 }
 
 data "aws_vpc_endpoint_service" "s3" {

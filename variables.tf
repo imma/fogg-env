@@ -50,6 +50,10 @@ variable "want_ipv6" {
   default = "1"
 }
 
+variable "want_kms" {
+  default = "0"
+}
+
 variable "want_digitalocean" {
   default = "0"
 }
@@ -182,4 +186,8 @@ output "dynamodb_endpoint_id" {
 
 output "egw_gateway" {
   value = "${aws_egress_only_internet_gateway.env.id}"
+}
+
+output "kms_arn" {
+  value = "${aws_kms_alias.env.target_key_id}"
 }
