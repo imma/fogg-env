@@ -195,3 +195,7 @@ output "kms_arn" {
 output "kms_key_id" {
   value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(data.terraform_remote_state.org.kms_key_id)),0)}"
 }
+
+output "env_cert" {
+  value = "${data.aws_acm_certificate.env.arn}"
+}

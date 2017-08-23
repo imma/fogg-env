@@ -2,6 +2,16 @@ variable "global_bucket" {}
 variable "global_key" {}
 variable "global_region" {}
 
+provider "aws" {
+  alias  = "us_west_2"
+  region = "us-west-2"
+}
+
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 data "terraform_remote_state" "org" {
   backend = "s3"
 
@@ -671,4 +681,10 @@ resource "aws_vpc_dhcp_options_association" "env" {
 resource "aws_codecommit_repository" "env" {
   repository_name = "${var.env_name}"
   description     = "Repo for ${var.env_name} env"
+}
+
+data "aws_acm_certificate" "env" {
+  provider = "aws.us_east_1"
+  domain   = "${aws_route53_zone.private.name}"
+  statuses = ["ISSUED", "PENDING_VALIDATION"]
 }
