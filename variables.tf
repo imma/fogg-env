@@ -207,3 +207,7 @@ output "api_gateway" {
 output "api_gateway_resource" {
   value = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
+
+output "api_gateway_execution_arn" {
+  value = "${aws_api_gateway_deployment.env.execution_arn}"
+}
