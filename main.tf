@@ -690,5 +690,5 @@ data "aws_acm_certificate" "env" {
 }
 
 resource "aws_api_gateway_rest_api" "env" {
-  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}"
+  name = "${var.env_name}"
 }
