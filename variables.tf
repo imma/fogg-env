@@ -199,3 +199,7 @@ output "kms_key_id" {
 output "env_cert" {
   value = "${data.aws_acm_certificate.env.arn}"
 }
+
+output "api_gateway" {
+  value = "${aws_api_gateway_rest_api.env.id}"
+}
