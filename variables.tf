@@ -203,3 +203,7 @@ output "env_cert" {
 output "api_gateway" {
   value = "${aws_api_gateway_rest_api.env.id}"
 }
+
+output "api_gateway_resource" {
+  value = "${aws_api_gateway_rest_api.env.root_resource_id}"
+}
