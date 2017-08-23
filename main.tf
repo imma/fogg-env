@@ -721,26 +721,3 @@ resource "aws_route53_record" "env_api_gateway_private" {
     evaluate_target_health = "true"
   }
 }
-
-resource "aws_api_gateway_deployment" "env" {
-  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "live"
-}
-
-resource "aws_api_gateway_method_settings" "env" {
-  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "${aws_api_gateway_deployment.env.stage_name}"
-  method_path = "*/*"
-
-  settings {
-    metrics_enabled    = true
-    logging_level      = "INFO"
-    data_trace_enabled = true
-  }
-}
-
-resource "aws_api_gateway_base_path_mapping" "env" {
-  api_id      = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "${aws_api_gateway_deployment.env.stage_name}"
-  domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
-}
