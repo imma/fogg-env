@@ -692,3 +692,19 @@ data "aws_acm_certificate" "env" {
 resource "aws_api_gateway_rest_api" "env" {
   name = "${var.env_name}"
 }
+
+resource "aws_api_gateway_domain_name" "env" {
+  domain_name     = "${aws_route53_zone.private.name}"
+  certificate_arn = "${data.aws_acm_certificate.env.arn}"
+}
+
+resource "aws_route53_record" "env_api_gateway" {
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "${aws_route53_zone.private.name}"
+  type    = "A"
+
+  alias {
+    name    = "${aws_api_gateway_domain_name.env.cloudfront_domain_name}"
+    zone_id = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
+  }
+}
