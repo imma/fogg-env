@@ -33,7 +33,7 @@ resource "aws_security_group_rule" "openvpn_udp" {
   from_port         = 1194
   to_port           = 1194
   protocol          = "udp"
-  cidr_blocks       = ["0.0.0.0/24"]
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${module.vpn.network_sg}"
 }
 
@@ -42,6 +42,6 @@ resource "aws_security_group_rule" "openvpn_tcp" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/24"]
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${module.vpn.network_sg}"
 }
