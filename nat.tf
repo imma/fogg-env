@@ -90,7 +90,7 @@ resource "aws_eip_association" "nat" {
 
 resource "aws_route53_record" "nat" {
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "nat${count.index}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}" /*"*/
+  name    = "nat${count.index+1}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}" /*"*/
   type    = "A"
   ttl     = "60"
   records = ["${aws_instance.nat.private_ip}"]
