@@ -19,7 +19,7 @@ data "template_file" "nat_user_data_service" {
 
   vars {
     vpc_cidr = "${data.aws_vpc.current.cidr_block}"
-    env      = "${varenv_name}"
+    env      = "${var.env_name}"
   }
 }
 
