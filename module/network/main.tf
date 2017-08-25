@@ -79,12 +79,16 @@ resource "aws_instance" "network" {
   volume_tags {
     "Name"      = "${var.env_name}-${var.network_name}"
     "Env"       = "${var.env_name}"
+    "App"       = "network"
+    "Service"   = "${var.network_name}"
     "ManagedBy" = "terraform"
   }
 
   tags {
     "Name"      = "${var.env_name}-${var.network_name}"
     "Env"       = "${var.env_name}"
+    "App"       = "network"
+    "Service"   = "${var.network_name}"
     "ManagedBy" = "terraform"
   }
 }
@@ -96,13 +100,15 @@ resource "aws_eip_association" "network" {
 }
 
 resource "aws_security_group" "network" {
-  name        = "${var.env_name}-${var.network_name}"
-  description = "Service ${var.env_name}-${var.network_name}"
+  name        = "${var.env_name}-netowrk-${var.network_name}"
+  description = "Service ${var.env_name}-network-${var.network_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
     "Name"      = "${var.env_name}-${var.network_name}"
     "Env"       = "${var.env_name}"
+    "App"       = "network"
+    "Service"   = "${var.network_name}"
     "ManagedBy" = "terraform"
   }
 }
