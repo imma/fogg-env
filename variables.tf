@@ -64,26 +64,6 @@ variable "want_packet" {
 
 variable "public_key" {}
 
-variable "nat_ami_id" {
-  default = ""
-}
-
-variable "nat_instance_type" {
-  default = "t2.nano"
-}
-
-variable "nat_instance_count" {
-  default = 0
-}
-
-variable "nat_root_volume_size" {
-  default = [40]
-}
-
-variable "nat_user_data" {
-  default = "module/init/nat-user-data.template"
-}
-
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
@@ -164,10 +144,6 @@ output "nat_gateways" {
   value = ["${aws_nat_gateway.env.*.id}"]
 }
 
-output "nat_instances" {
-  value = ["${aws_instance.nat.*.id}"]
-}
-
 output "nat_subnets" {
   value = ["${aws_subnet.nat.*.id}"]
 }
@@ -230,4 +206,24 @@ output "api_gateway" {
 
 output "api_gateway_resource" {
   value = "${aws_api_gateway_rest_api.env.root_resource_id}"
+}
+
+variable "nat_ami_id" {
+  default = ""
+}
+
+variable "nat_instance_type" {
+  default = "t2.nano"
+}
+
+variable "nat_instance_count" {
+  default = 0
+}
+
+variable "nat_root_volume_size" {
+  default = [40]
+}
+
+output "nat_instances" {
+  value = ["${module.nat.instances}"]
 }
