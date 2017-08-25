@@ -100,7 +100,7 @@ resource "aws_eip_association" "network" {
 }
 
 resource "aws_security_group" "network" {
-  name        = "${var.env_name}-netowrk-${var.network_name}"
+  name        = "${var.env_name}-network-${var.network_name}"
   description = "Service ${var.env_name}-network-${var.network_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
   count       = "${signum(var.instance_count)}"
