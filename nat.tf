@@ -23,6 +23,11 @@ module "nat" {
   user_data        = "${var.nat_user_data}"
 }
 
+resource "aws_eip" "nat" {
+  vpc   = true
+  count = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)+var.nat_instance_count}"
+}
+
 resource "aws_security_group_rule" "forward_allow_ping" {
   type                     = "ingress"
   from_port                = 8

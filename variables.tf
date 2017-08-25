@@ -6,10 +6,6 @@ variable "org" {
 
 variable "az_count" {}
 
-variable "nat_count" {
-  default = "0"
-}
-
 variable "nat_bits" {
   default = "12"
 }
@@ -39,10 +35,6 @@ variable "associate_count" {
 }
 
 variable "want_efs" {
-  default = "1"
-}
-
-variable "want_nat" {
   default = "1"
 }
 
@@ -136,10 +128,6 @@ output "sg_env_lb_public" {
   value = "${aws_security_group.env_lb_public.id}"
 }
 
-output "nat_eips" {
-  value = ["${aws_eip.nat.*.public_ip}"]
-}
-
 output "nat_gateways" {
   value = ["${aws_nat_gateway.env.*.id}"]
 }
@@ -208,6 +196,18 @@ output "api_gateway_resource" {
   value = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
+variable "want_nat" {
+  default = "1"
+}
+
+variable "nat_count" {
+  default = "0"
+}
+
+variable "nat_instance_count" {
+  default = 0
+}
+
 variable "nat_ami_id" {
   default = ""
 }
@@ -216,16 +216,42 @@ variable "nat_instance_type" {
   default = "t2.nano"
 }
 
-variable "nat_instance_count" {
-  default = 0
-}
-
 variable "nat_user_data" {}
 
 variable "nat_root_volume_size" {
   default = [40]
 }
 
+output "nat_eips" {
+  value = ["${aws_eip.nat.*.public_ip}"]
+}
+
 output "nat_instances" {
   value = ["${module.nat.instances}"]
+}
+
+variable "want_vpn" {
+  default = "0"
+}
+
+variable "vpn_ami_id" {
+  default = ""
+}
+
+variable "vpn_instance_type" {
+  default = "t2.nano"
+}
+
+variable "vpn_instance_count" {
+  default = 0
+}
+
+variable "vpn_user_data" {}
+
+variable "vpn_root_volume_size" {
+  default = [40]
+}
+
+output "vpn_instances" {
+  value = ["${module.vpn.instances}"]
 }

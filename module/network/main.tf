@@ -103,6 +103,7 @@ resource "aws_security_group" "network" {
   name        = "${var.env_name}-netowrk-${var.network_name}"
   description = "Service ${var.env_name}-network-${var.network_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
+  count       = "${signum(var.instance_count)}"
 
   tags {
     "Name"      = "${var.env_name}-${var.network_name}"
@@ -123,6 +124,8 @@ resource "aws_route53_record" "network" {
 }
 
 data "aws_iam_policy_document" "network" {
+  count = "${signum(var.instance_count)}"
+
   statement {
     actions = [
       "sts:AssumeRole",
@@ -147,46 +150,55 @@ data "aws_iam_policy_document" "network" {
 }
 
 resource "aws_iam_instance_profile" "network" {
-  name = "${var.env_name}-${var.network_name}"
-  role = "${aws_iam_role.network.name}"
+  name  = "${var.env_name}-${var.network_name}"
+  role  = "${aws_iam_role.network.name}"
+  count = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role" "network" {
   name               = "${var.env_name}-${var.network_name}"
   assume_role_policy = "${data.aws_iam_policy_document.network.json}"
+  count              = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_exec" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
+  count      = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "ecr_ro" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  count      = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "ecs" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  count      = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "ecs-container" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
+  count      = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "cc_ro" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+  count      = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "ssm-agent" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+  count      = "${signum(var.instance_count)}"
 }
 
 resource "aws_iam_role_policy_attachment" "ssm-ro" {
   role       = "${aws_iam_role.network.name}"
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+  count      = "${signum(var.instance_count)}"
 }
