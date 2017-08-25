@@ -23,6 +23,8 @@ data "template_file" "nat_user_data_service" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_instance" "nat" {
   ami           = "${coalesce(var.nat_ami_id,data.aws_ami.block.image_id)}"
   instance_type = "${var.nat_instance_type}"
@@ -95,4 +97,73 @@ resource "aws_route53_record" "nat" {
   ttl     = "60"
   records = ["${aws_instance.nat.private_ip}"]
   count   = "${var.nat_instance_count}"
+}
+
+data "aws_iam_policy_document" "nat" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+}
+
+resource "aws_iam_instance_profile" "service" {
+  name = "${var.env_name}-nat"
+  role = "${aws_iam_role.nat.name}"
+}
+
+resource "aws_iam_role" "nat" {
+  name               = "${var.env_name}-nat"
+  assume_role_policy = "${data.aws_iam_policy_document.nat.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_exec" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_ro" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-container" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
+}
+
+resource "aws_iam_role_policy_attachment" "cc_ro" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm-agent" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm-ro" {
+  role       = "${aws_iam_role.nat.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
