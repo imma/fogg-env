@@ -29,19 +29,19 @@ resource "aws_eip" "vpn" {
 }
 
 resource "aws_security_group_rule" "openvpn_udp" {
-  type                     = "ingress"
-  from_port                = 1194
-  to_port                  = 1194
-  protocol                 = "udp"
-  source_security_group_id = "0.0.0.0/24"
-  security_group_id        = "${module.vpn.network_sg}"
+  type              = "ingress"
+  from_port         = 1194
+  to_port           = 1194
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/24"]
+  security_group_id = "${module.vpn.network_sg}"
 }
 
 resource "aws_security_group_rule" "openvpn_tcp" {
-  type                     = "ingress"
-  from_port                = 443
-  to_port                  = 443
-  protocol                 = "tcp"
-  source_security_group_id = "0.0.0.0/24"
-  security_group_id        = "${module.vpn.network_sg}"
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/24"]
+  security_group_id = "${module.vpn.network_sg}"
 }
