@@ -73,13 +73,13 @@ resource "aws_instance" "nat" {
   }
 
   volume_tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-nat"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-nat"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -97,7 +97,7 @@ resource "aws_security_group" "nat" {
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-nat"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
