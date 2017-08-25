@@ -25,6 +25,10 @@ data "template_file" "user_data_service" {
 
 data "aws_caller_identity" "current" {}
 
+data "aws_vpc" "current" {
+  id = "${var.vpc_id}"
+}
+
 resource "aws_instance" "network" {
   ami           = "${coalesce(var.ami_id,data.aws_ami.block.image_id)}"
   instance_type = "${var.instance_type}"

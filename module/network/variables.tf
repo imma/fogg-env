@@ -1,6 +1,7 @@
 variable "network_name" {}
 variable "user_data" {}
 
+variable "vpc_id" {}
 variable "env_name" {}
 variable "env_zone" {}
 variable "env_domain_name" {}

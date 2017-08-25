@@ -1,9 +1,12 @@
 module "nat" {
   source = "module/network"
 
+  vpc_id          = "${aws_vpc.env.id}"
   env_name        = "${var.env_name}"
   env_zone        = "${var.env_zone}"
   env_domain_name = "${var.env_domain_name}"
+
+  networkname = "nat"
 
   ami_id           = "${var.nat_ami_id}"
   instance_type    = "${var.nat_instance_type}"
