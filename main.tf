@@ -284,7 +284,7 @@ resource "aws_route_table" "common" {
 
 resource "aws_eip" "nat" {
   vpc   = true
-  count = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"
+  count = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)+var.nat_instance_count}"
 }
 
 resource "aws_subnet" "nat" {

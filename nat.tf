@@ -33,7 +33,7 @@ resource "aws_instance" "nat" {
   iam_instance_profile = "${var.env_name}-nat"
 
   vpc_security_group_ids      = ["${list(aws_security_group.env.id,aws_security_group.env_public.id)}"]
-  subnet_id                   = "${element(aws_subnet.public.*.id,count.index)}"
+  subnet_id                   = "${element(aws_subnet.nat.*.id,count.index)}"
   associate_public_ip_address = true
 
   lifecycle {
@@ -80,6 +80,12 @@ resource "aws_instance" "nat" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
+}
+
+resource "aws_eip_association" "nat" {
+  instance_id   = "${element(aws_instance.nat.*.id,count.index)}"
+  allocation_id = "${element(aws_eip.nat.*.id,count.index)}"
+  count         = "${var.nat_instance_count}"
 }
 
 resource "aws_route53_record" "nat" {

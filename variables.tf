@@ -73,7 +73,7 @@ variable "nat_instance_type" {
 }
 
 variable "nat_instance_count" {
-  default = 1
+  default = 0
 }
 
 variable "nat_root_volume_size" {
@@ -162,6 +162,10 @@ output "nat_eips" {
 
 output "nat_gateways" {
   value = ["${aws_nat_gateway.env.*.id}"]
+}
+
+output "nat_instances" {
+  value = ["${aws_instance.nat.*.id}"]
 }
 
 output "nat_subnets" {
