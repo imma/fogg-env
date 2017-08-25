@@ -64,6 +64,26 @@ variable "want_packet" {
 
 variable "public_key" {}
 
+variable "nat_ami_id" {
+  default = ""
+}
+
+variable "nat_instance_type" {
+  default = "t2.nano"
+}
+
+variable "nat_instance_count" {
+  default = 1
+}
+
+variable "nat_root_volume_size" {
+  default = 40
+}
+
+variable "nat_user_data" {
+  default = "module/init/nat-user-data.template"
+}
+
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
