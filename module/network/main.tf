@@ -34,12 +34,12 @@ resource "aws_instance" "network" {
   instance_type = "${var.instance_type}"
   count         = "${var.instance_count}"
 
-  key_name             = "${aws_key_pair.service.key_name}"
+  key_name             = "${var.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"
   iam_instance_profile = "${var.env_name}-${var.network_name}"
 
-  vpc_security_group_ids      = ["${list(aws_security_group.env.id,aws_security_group.env_public.id,aws_security_group.network.id)}"]
-  subnet_id                   = "${element(aws_subnet.network.*.id,count.index)}"
+  vpc_security_group_ids      = ["${list(var.env_sg,var.env_public_sg,aws_security_group.network.id)}"]
+  subnet_id                   = "${element(var.subnets,count.index)}"
   associate_public_ip_address = true
   source_dest_check           = false
 
@@ -91,7 +91,7 @@ resource "aws_instance" "network" {
 
 resource "aws_eip_association" "network" {
   instance_id   = "${element(aws_instance.network.*.id,count.index)}"
-  allocation_id = "${element(aws_eip.network.*.id,count.index)}"
+  allocation_id = "${element(var.eips,count.index)}"
   count         = "${var.instance_count}"
 }
 
@@ -108,8 +108,8 @@ resource "aws_security_group" "network" {
 }
 
 resource "aws_route53_record" "network" {
-  zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "${var.network_name}${count.index+1}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}" /*"*/
+  zone_id = "${var.private_zone_id}"
+  name    = "${var.network_name}${count.index+1}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : var.domain_name}" /*"*/
   type    = "A"
   ttl     = "60"
   records = ["${aws_instance.network.private_ip}"]

@@ -220,6 +220,8 @@ variable "nat_instance_count" {
   default = 0
 }
 
+variable "nat_user_data" {}
+
 variable "nat_root_volume_size" {
   default = [40]
 }

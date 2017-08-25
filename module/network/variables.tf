@@ -6,6 +6,24 @@ variable "env_name" {}
 variable "env_zone" {}
 variable "env_domain_name" {}
 
+variable "eips" {
+  default = []
+}
+
+variable "key_name" {}
+
+variable "env_sg" {}
+
+variable "env_public_sg" {}
+
+variable "domain_name" {}
+
+variable "private_zone_id" {}
+
+variable "subnets" {
+  default = []
+}
+
 variable "ami_id" {
   default = ""
 }
