@@ -34,9 +34,10 @@ resource "aws_instance" "nat" {
   user_data            = "${data.template_file.nat_user_data_service.rendered}"
   iam_instance_profile = "${var.env_name}-nat"
 
-  vpc_security_group_ids      = ["${list(aws_security_group.env.id,aws_security_group.env_public.id)}"]
+  vpc_security_group_ids      = ["${list(aws_security_group.env.id,aws_security_group.env_public.id,aws_security_group.nat.id)}"]
   subnet_id                   = "${element(aws_subnet.nat.*.id,count.index)}"
   associate_public_ip_address = true
+  source_dest_check           = false
 
   lifecycle {
     ignore_changes = ["disable_api_termination", "ami", "ephemeral_block_device", "user_data", "subnet_id"]
@@ -88,6 +89,45 @@ resource "aws_eip_association" "nat" {
   instance_id   = "${element(aws_instance.nat.*.id,count.index)}"
   allocation_id = "${element(aws_eip.nat.*.id,count.index)}"
   count         = "${var.nat_instance_count}"
+}
+
+resource "aws_security_group" "nat" {
+  name        = "${var.env_name}-nat"
+  description = "Service ${var.env_name}-nat"
+  vpc_id      = "${data.aws_vpc.current.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_security_group_rule" "nat_allow_ping" {
+  type                     = "ingress"
+  from_port                = 8
+  to_port                  = 0
+  protocol                 = "icmp"
+  source_security_group_id = "${aws_security_group.env.id}"
+  security_group_id        = "${aws_security_group.nat.id}"
+}
+
+resource "aws_security_group_rule" "nat_allow_http" {
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.env.id}"
+  security_group_id        = "${aws_security_group.nat.id}"
+}
+
+resource "aws_security_group_rule" "nat_allow_https" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.env.id}"
+  security_group_id        = "${aws_security_group.nat.id}"
 }
 
 resource "aws_route53_record" "nat" {
