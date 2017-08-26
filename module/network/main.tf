@@ -114,6 +114,38 @@ resource "aws_security_group" "network" {
   }
 }
 
+resource "aws_network_interface" "network" {
+  subnet_id         = "${element(var.subnets,count.index)}"
+  private_ips_count = 1
+  count             = "${var.az_count}"
+
+  tags {
+    "Name"      = "${var.env_name}-network-${var.network_name}"
+    "Env"       = "${var.env_name}"
+    "App"       = "network"
+    "Service"   = "${var.network_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_network_interface_sg_attachment" "env" {
+  security_group_id    = "${var.env_sg}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
+  count                = "${var.az_count}"
+}
+
+resource "aws_network_interface_sg_attachment" "env_public" {
+  security_group_id    = "${var.env_public_sg}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
+  count                = "${var.az_count}"
+}
+
+resource "aws_network_interface_sg_attachment" "env_network" {
+  security_group_id    = "${aws_security_group.network.id}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
+  count                = "${var.az_count}"
+}
+
 resource "aws_route53_record" "network" {
   zone_id = "${var.private_zone_id}"
   name    = "${var.network_name}${count.index+1}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : var.domain_name}" /*"*/

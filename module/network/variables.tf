@@ -5,6 +5,7 @@ variable "vpc_id" {}
 variable "env_name" {}
 variable "env_zone" {}
 variable "env_domain_name" {}
+variable "az_count" {}
 
 variable "eips" {
   default = []
