@@ -28,6 +28,16 @@ resource "aws_eip" "vpn" {
   count = "${var.want_vpn*var.az_count}"
 }
 
+resource "aws_security_group_rule" "public_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${module.vpn.network_sg}"
+  count             = "${var.want_vpn}"
+}
+
 resource "aws_security_group_rule" "openvpn_udp" {
   type              = "ingress"
   from_port         = 1194
