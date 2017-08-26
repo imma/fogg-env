@@ -54,3 +54,33 @@ resource "aws_route" "nat_vpn" {
   instance_id            = "${element(module.vpn.instances,count.index)}"
   count                  = "${var.want_vpn*var.az_count}"
 }
+
+resource "aws_security_group_rule" "vpn_tcp" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = ["10.8.0.0/24"]
+  security_group_id = "${aws_security_group.env.id}"
+  count             = "${var.want_vpn}"
+}
+
+resource "aws_security_group_rule" "vpn_udp" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "udp"
+  cidr_blocks       = ["10.8.0.0/24"]
+  security_group_id = "${aws_security_group.env.id}"
+  count             = "${var.want_vpn}"
+}
+
+resource "aws_security_group_rule" "vpn_ping" {
+  type              = "ingress"
+  from_port         = 8
+  to_port           = 0
+  protocol          = "icmp"
+  cidr_blocks       = ["10.8.0.0/24"]
+  security_group_id = "${aws_security_group.env.id}"
+  count             = "${var.want_vpn}"
+}
