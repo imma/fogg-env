@@ -35,6 +35,7 @@ resource "aws_security_group_rule" "openvpn_udp" {
   protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${module.vpn.network_sg}"
+  count             = "${var.want_vpn}"
 }
 
 resource "aws_security_group_rule" "openvpn_tcp" {
@@ -44,4 +45,17 @@ resource "aws_security_group_rule" "openvpn_tcp" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${module.vpn.network_sg}"
+  count             = "${var.want_vpn}"
+}
+
+resource "aws_route" "nat_vpn" {
+  route_table_id = "${element(aws_route_table.service_public.*.id,count.index)}"
+  count          = "${var.want_subnets*var.az_count*signum(var.public_network)*var.want_vpn}"
+}
+
+resource "aws_route" "nat_vpn" {
+  route_table_id         = "${aws_route_table.nat.id}"
+  destination_cidr_block = "10.8.0.0/24"
+  instance_id            = "${element(module.vpn.instances,count.idex)}"
+  count                  = "${var.want_vpn*var.az_count}"
 }
