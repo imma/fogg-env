@@ -5,6 +5,7 @@ module "vpn" {
   env_name        = "${var.env_name}"
   env_zone        = "${var.env_zone}"
   env_domain_name = "${var.env_domain_name}"
+  az_count        = "${var.az_count}"
 
   eips            = ["${aws_eip.vpn.*.id}"]
   key_name        = "${aws_key_pair.service.key_name}"
