@@ -37,6 +37,10 @@ variable "instance_count" {
   default = 0
 }
 
+variable "interface_count" {
+  default = 0
+}
+
 variable "root_volume_size" {
   default = [40]
 }
@@ -45,14 +49,14 @@ variable "source_dest_check" {
   default = true
 }
 
-output "instances" {
-  value = ["${aws_instance.network.*.id}"]
-}
-
 output "network_sg" {
   value = "${aws_security_group.network.id}"
 }
 
-output "network_interfaces" {
+output "instances" {
+  value = ["${aws_instance.network.*.id}"]
+}
+
+output "interfaces" {
   value = ["${aws_network_interface.network.*.id}"]
 }
