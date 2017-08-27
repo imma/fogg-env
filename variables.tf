@@ -205,7 +205,7 @@ variable "nat_count" {
 }
 
 variable "nat_interface_count" {
-  default = 0
+  default = 1
 }
 
 output "nat_eips" {
@@ -221,11 +221,11 @@ output "nat_interfaces" {
 }
 
 variable "want_vpn" {
-  default = "0"
+  default = "1"
 }
 
 variable "vpn_interface_count" {
-  default = 0
+  default = 1
 }
 
 output "vpn_eips" {
