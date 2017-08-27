@@ -116,7 +116,6 @@ resource "aws_security_group" "network" {
 
 resource "aws_network_interface" "network" {
   subnet_id         = "${element(var.subnets,count.index)}"
-  private_ips_count = 1
   count             = "${var.az_count}"
 
   tags {
