@@ -204,34 +204,12 @@ variable "nat_count" {
   default = "0"
 }
 
-variable "nat_instance_count" {
-  default = 0
-}
-
 variable "nat_interface_count" {
   default = 0
 }
 
-variable "nat_ami_id" {
-  default = ""
-}
-
-variable "nat_instance_type" {
-  default = "t2.nano"
-}
-
-variable "nat_user_data" {}
-
-variable "nat_root_volume_size" {
-  default = [40]
-}
-
 output "nat_eips" {
-  value = ["${aws_eip.nat.*.public_ip}"]
-}
-
-output "nat_instances" {
-  value = ["${module.nat.instances}"]
+  value = ["${module.nat.eips}"]
 }
 
 output "nat_sg" {
@@ -246,30 +224,12 @@ variable "want_vpn" {
   default = "0"
 }
 
-variable "vpn_ami_id" {
-  default = ""
-}
-
-variable "vpn_instance_type" {
-  default = "t2.nano"
-}
-
-variable "vpn_instance_count" {
-  default = 0
-}
-
 variable "vpn_interface_count" {
   default = 0
 }
 
-variable "vpn_user_data" {}
-
-variable "vpn_root_volume_size" {
-  default = [40]
-}
-
-output "vpn_instances" {
-  value = ["${module.vpn.instances}"]
+output "vpn_eips" {
+  value = ["${module.vpn.eips}"]
 }
 
 output "vpn_sg" {

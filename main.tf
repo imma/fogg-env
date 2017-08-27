@@ -323,7 +323,7 @@ resource "aws_vpc_endpoint_route_table_association" "dynamodb_nat" {
 
 resource "aws_nat_gateway" "env" {
   subnet_id     = "${element(aws_subnet.nat.*.id,count.index)}"
-  allocation_id = "${element(aws_eip.nat.*.id,count.index)}"
+  allocation_id = "${element(module.nat.allocation_id,count.index)}"
   count         = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"
 }
 
