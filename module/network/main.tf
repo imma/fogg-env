@@ -40,7 +40,7 @@ resource "aws_eip" "network" {
 }
 
 resource "aws_eip_association" "network" {
-  network_interface_id = "${lookup(aws_network_interface.network.*.id,count.index)}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
   allocation_id        = "${element(aws_eip.network.*.id,count.index)}"
   count                = "${var.interface_count}"
 }
