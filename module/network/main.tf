@@ -14,15 +14,6 @@ data "aws_ami" "block" {
   owners = ["self"]
 }
 
-data "template_file" "user_data_service" {
-  template = "${file(var.user_data)}"
-
-  vars {
-    vpc_cidr = "${data.aws_vpc.current.cidr_block}"
-    env      = "${var.env_name}"
-  }
-}
-
 data "aws_caller_identity" "current" {}
 
 data "aws_vpc" "current" {
@@ -58,7 +49,6 @@ resource "aws_security_group" "network" {
   name        = "${var.env_name}-network-${var.network_name}"
   description = "Service ${var.env_name}-network-${var.network_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
-  count       = "${signum(var.instance_count)}"
 
   tags {
     "Name"      = "${var.env_name}-${var.network_name}"
