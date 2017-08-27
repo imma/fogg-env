@@ -45,8 +45,15 @@ resource "aws_security_group_rule" "openvpn_tcp" {
 resource "aws_route" "nat_vpn" {
   route_table_id         = "${aws_route_table.nat.id}"
   destination_cidr_block = "10.8.0.0/24"
-  instance_id            = "${element(module.vpn.instances,count.index)}"
-  count                  = "${var.want_vpn*var.az_count}"
+  instance_id            = "meh"
+  count                  = 0
+}
+
+resource "aws_route" "nat_vpn_eni" {
+  route_table_id         = "${aws_route_table.nat.id}"
+  destination_cidr_block = "10.8.0.0/24"
+  network_interface_id   = "${element(module.vpn.interfaces,count.index)}"
+  count                  = 1
 }
 
 resource "aws_security_group_rule" "vpn_tcp" {
