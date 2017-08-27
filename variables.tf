@@ -235,7 +235,7 @@ output "nat_sg" {
 }
 
 output "nat_interfaces" {
-  value = ["${module.nat.network_interfaces}"]
+  value = ["${module.nat.interfaces}"]
 }
 
 variable "want_vpn" {
@@ -269,5 +269,5 @@ output "vpn_sg" {
 }
 
 output "vpn_interfaces" {
-  value = ["${module.vpn.network_interfaces}"]
+  value = ["${module.vpn.interfaces}"]
 }
