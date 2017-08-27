@@ -230,6 +230,14 @@ output "nat_instances" {
   value = ["${module.nat.instances}"]
 }
 
+output "nat_sg" {
+  value = ["${module.nat.network_sg}"]
+}
+
+output "nat_interfaces" {
+  value = ["${module.nat.network_interfaces}"]
+}
+
 variable "want_vpn" {
   default = "0"
 }
@@ -254,4 +262,12 @@ variable "vpn_root_volume_size" {
 
 output "vpn_instances" {
   value = ["${module.vpn.instances}"]
+}
+
+output "vpn_sg" {
+  value = ["${module.vpn.network_sg}"]
+}
+
+output "vpn_interfaces" {
+  value = ["${module.vpn.network_interfaces}"]
 }

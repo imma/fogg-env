@@ -48,3 +48,7 @@ output "instances" {
 output "network_sg" {
   value = "${aws_security_group.network.id}"
 }
+
+output "network_interfaces" {
+  value = ["${aws_network_interface.network.*.id}"]
+}

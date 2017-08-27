@@ -234,3 +234,35 @@ resource "aws_iam_role_policy_attachment" "ssm-ro" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
   count      = "${signum(var.instance_count)}"
 }
+
+resource "aws_network_interface" "network" {
+  subnet_id         = "${element(var.subnets,count.index)}"
+  private_ips_count = 1
+  count             = "${var.az_count}"
+
+  tags {
+    "Name"      = "${var.env_name}-${var.network_name}"
+    "Env"       = "${var.env_name}"
+    "App"       = "network"
+    "Service"   = "${var.network_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_network_interface_sg_attachment" "env" {
+  security_group_id    = "${var.env_sg}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
+  count                = "${var.want_subnets*var.az_count*var.want_subnets}"
+}
+
+resource "aws_network_interface_sg_attachment" "env_private" {
+  security_group_id    = "${var.env_public_sg}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
+  count                = "${var.want_subnets*var.az_count*var.want_subnets*signum(var.public_network)}"
+}
+
+resource "aws_network_interface_sg_attachment" "network" {
+  security_group_id    = "${aws_security_group.network.id}"
+  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
+  count                = "${var.want_subnets*var.az_count*var.want_subnets}"
+}
