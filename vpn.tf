@@ -7,14 +7,13 @@ module "vpn" {
   env_domain_name = "${var.env_domain_name}"
   az_count        = "${var.az_count}"
 
-  eips              = ["${aws_eip.vpn.*.id}"]
-  key_name          = "${aws_key_pair.service.key_name}"
-  env_sg            = "${aws_security_group.env.id}"
-  env_public_sg     = "${aws_security_group.env_public.id}"
-  domain_name       = "${data.terraform_remote_state.org.domain_name}"
-  private_zone_id   = "${aws_route53_zone.private.zone_id}"
-  subnets           = ["${aws_subnet.nat.*.id}"]
-  source_dest_check = false
+  eips            = ["${aws_eip.vpn.*.id}"]
+  key_name        = "${aws_key_pair.service.key_name}"
+  env_sg          = "${aws_security_group.env.id}"
+  env_public_sg   = "${aws_security_group.env_public.id}"
+  domain_name     = "${data.terraform_remote_state.org.domain_name}"
+  private_zone_id = "${aws_route53_zone.private.zone_id}"
+  subnets         = ["${aws_subnet.nat.*.id}"]
 
   network_name = "vpn"
 

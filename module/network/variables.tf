@@ -45,10 +45,6 @@ variable "root_volume_size" {
   default = [40]
 }
 
-variable "source_dest_check" {
-  default = true
-}
-
 output "network_sg" {
   value = "${aws_security_group.network.id}"
 }

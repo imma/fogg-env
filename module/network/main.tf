@@ -30,8 +30,9 @@ data "aws_vpc" "current" {
 }
 
 resource "aws_network_interface" "network" {
-  subnet_id = "${element(var.subnets,count.index)}"
-  count     = "${var.interface_count}"
+  subnet_id         = "${element(var.subnets,count.index)}"
+  source_dest_check = false
+  count             = "${var.interface_count}"
 
   tags {
     "Name"      = "${var.env_name}-network-${var.network_name}"
