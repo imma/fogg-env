@@ -41,6 +41,10 @@ variable "root_volume_size" {
   default = [40]
 }
 
+variable "source_dest_check" {
+  default = true
+}
+
 output "instances" {
   value = ["${aws_instance.network.*.id}"]
 }
