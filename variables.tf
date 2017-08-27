@@ -208,6 +208,10 @@ variable "nat_instance_count" {
   default = 0
 }
 
+variable "nat_interface_count" {
+  default = 0
+}
+
 variable "nat_ami_id" {
   default = ""
 }
@@ -251,6 +255,10 @@ variable "vpn_instance_type" {
 }
 
 variable "vpn_instance_count" {
+  default = 0
+}
+
+variable "vpn_interface_count" {
   default = 0
 }
 

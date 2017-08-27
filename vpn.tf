@@ -20,9 +20,10 @@ module "vpn" {
 
   ami_id           = "${var.vpn_ami_id}"
   instance_type    = "${var.vpn_instance_type}"
-  instance_count   = "${var.want_vpn}"
   root_volume_size = "${var.vpn_root_volume_size}"
   user_data        = "${var.vpn_user_data}"
+  instance_count   = "${var.want_vpn}"
+  interface_count  = "${var.vpn_interface_count}"
 }
 
 resource "aws_eip" "vpn" {

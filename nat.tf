@@ -20,9 +20,10 @@ module "nat" {
 
   ami_id           = "${var.nat_ami_id}"
   instance_type    = "${var.nat_instance_type}"
-  instance_count   = "${var.nat_instance_count}"
   root_volume_size = "${var.nat_root_volume_size}"
   user_data        = "${var.nat_user_data}"
+  instance_count   = "${var.nat_instance_count}"
+  interface_count  = "${var.nat_interface_count}"
 }
 
 resource "aws_eip" "nat" {
