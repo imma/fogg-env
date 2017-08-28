@@ -12,16 +12,6 @@ module "vpn" {
   interface_count = "${var.vpn_interface_count}"
 }
 
-resource "aws_security_group_rule" "openvpn_tcp" {
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${module.vpn.network_sg}"
-  count             = "${var.want_vpn}"
-}
-
 resource "aws_route" "nat_vpn_eni" {
   route_table_id         = "${aws_route_table.nat.id}"
   destination_cidr_block = "10.8.0.0/24"
