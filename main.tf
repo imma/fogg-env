@@ -634,7 +634,7 @@ resource "aws_kms_key" "env" {
 
 resource "aws_kms_alias" "env" {
   name          = "alias/${var.env_name}"
-  target_key_id = "${element(coalescelist(join(" ",aws_kms_key.env.*.id),list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
+  target_key_id = "${element(coalescelist(list(join(" ",aws_kms_key.env.*.id)),list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
 }
 
 data "aws_vpc_endpoint_service" "s3" {
