@@ -205,7 +205,7 @@ variable "want_admin" {
 }
 
 variable "want_nat" {
-  default = "0"
+  default = "1"
 }
 
 variable "nat_count" {
