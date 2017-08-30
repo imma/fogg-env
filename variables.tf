@@ -1,5 +1,7 @@
 variable "env_name" {}
 
+variable "region" {}
+
 variable "org" {
   default = []
 }
