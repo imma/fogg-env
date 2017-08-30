@@ -1,50 +1,32 @@
 variable "network_name" {}
-variable "user_data" {}
 
 variable "vpc_id" {}
 variable "env_name" {}
-variable "env_zone" {}
-variable "env_domain_name" {}
-variable "az_count" {}
-
-variable "eips" {
-  default = []
-}
-
-variable "key_name" {}
 
 variable "env_sg" {}
 
 variable "env_public_sg" {}
 
-variable "domain_name" {}
-
-variable "private_zone_id" {}
-
 variable "subnets" {
   default = []
 }
 
-variable "ami_id" {
-  default = ""
-}
-
-variable "instance_type" {
-  default = "t2.nano"
-}
-
-variable "instance_count" {
+variable "interface_count" {
   default = 0
-}
-
-variable "root_volume_size" {
-  default = [40]
-}
-
-output "instances" {
-  value = ["${aws_instance.network.*.id}"]
 }
 
 output "network_sg" {
   value = "${aws_security_group.network.id}"
+}
+
+output "interfaces" {
+  value = ["${aws_network_interface.network.*.id}"]
+}
+
+output "allocation_id" {
+  value = ["${aws_eip.network.*.id}"]
+}
+
+output "eips" {
+  value = ["${aws_eip.network.*.public_ip}"]
 }

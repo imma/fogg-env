@@ -1,5 +1,7 @@
 variable "env_name" {}
 
+variable "region" {}
+
 variable "org" {
   default = []
 }
@@ -177,11 +179,11 @@ output "egw_gateway" {
 }
 
 output "kms_arn" {
-  value = "${element(coalescelist(aws_kms_key.env.*.arn,list(data.terraform_remote_state.org.kms_arn)),0)}"
+  value = "${element(coalescelist(aws_kms_key.env.*.arn,list(lookup(data.terraform_remote_state.org.kms_arn,var.region))),0)}"
 }
 
 output "kms_key_id" {
-  value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(data.terraform_remote_state.org.kms_key_id)),0)}"
+  value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
 }
 
 output "env_cert" {
@@ -204,54 +206,38 @@ variable "nat_count" {
   default = "0"
 }
 
-variable "nat_instance_count" {
-  default = 0
-}
-
-variable "nat_ami_id" {
-  default = ""
-}
-
-variable "nat_instance_type" {
-  default = "t2.nano"
-}
-
-variable "nat_user_data" {}
-
-variable "nat_root_volume_size" {
-  default = [40]
+variable "nat_interface_count" {
+  default = 1
 }
 
 output "nat_eips" {
-  value = ["${aws_eip.nat.*.public_ip}"]
+  value = ["${module.nat.eips}"]
 }
 
-output "nat_instances" {
-  value = ["${module.nat.instances}"]
+output "nat_sg" {
+  value = ["${module.nat.network_sg}"]
+}
+
+output "nat_interfaces" {
+  value = ["${module.nat.interfaces}"]
 }
 
 variable "want_vpn" {
-  default = "0"
+  default = "1"
 }
 
-variable "vpn_ami_id" {
-  default = ""
+variable "vpn_interface_count" {
+  default = 1
 }
 
-variable "vpn_instance_type" {
-  default = "t2.nano"
+output "vpn_eips" {
+  value = ["${module.vpn.eips}"]
 }
 
-variable "vpn_instance_count" {
-  default = 0
+output "vpn_sg" {
+  value = ["${module.vpn.network_sg}"]
 }
 
-variable "vpn_user_data" {}
-
-variable "vpn_root_volume_size" {
-  default = [40]
-}
-
-output "vpn_instances" {
-  value = ["${module.vpn.instances}"]
+output "vpn_interfaces" {
+  value = ["${module.vpn.interfaces}"]
 }
