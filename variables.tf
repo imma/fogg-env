@@ -200,8 +200,12 @@ output "api_gateway_resource" {
   value = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
+variable "want_admin" {
+  default = "0"
+}
+
 variable "want_nat" {
-  default = "1"
+  default = "0"
 }
 
 variable "nat_count" {
