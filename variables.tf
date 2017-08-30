@@ -56,7 +56,9 @@ variable "want_packet" {
   default = "0"
 }
 
-variable "public_key" {}
+variable "public_key" {
+  defaut = "module/init/ssh-key-pair.pub"
+}
 
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
