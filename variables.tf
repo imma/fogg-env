@@ -57,7 +57,7 @@ variable "want_packet" {
 }
 
 variable "public_key" {
-  defaut = "module/init/ssh-key-pair.pub"
+  default = "module/init/ssh-key-pair.pub"
 }
 
 output "vpc_id" {
