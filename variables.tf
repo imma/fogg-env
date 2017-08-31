@@ -12,12 +12,24 @@ variable "nat_bits" {
   default = "12"
 }
 
+variable "nat_subnets" {
+  default = []
+}
+
 variable "public_bits" {
   default = "8"
 }
 
+variable "public_subnets" {
+  default = []
+}
+
 variable "common_bits" {
   default = "8"
+}
+
+variable "common_subnets" {
+  default = []
 }
 
 variable "env_zone" {
