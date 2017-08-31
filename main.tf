@@ -167,7 +167,7 @@ resource "null_resource" "fake" {
 resource "aws_subnet" "public" {
   vpc_id                          = "${aws_vpc.env.id}"
   availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(split(" ",data.external.org.result["sys_public"]),count.index))}"
+  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(coalescelist(var.public_subnets,split(" ",data.external.org.result["sys_public"])),count.index))}"
   map_public_ip_on_launch         = true
   ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.external.org.result["sys_public_v6"]),count.index))}"
   assign_ipv6_address_on_creation = true
@@ -226,7 +226,7 @@ resource "aws_route_table" "public" {
 resource "aws_subnet" "common" {
   vpc_id                          = "${aws_vpc.env.id}"
   availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(split(" ",data.external.org.result["sys_common"]),count.index))}"
+  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(coalescelist(var.common_subnets,split(" ",data.external.org.result["sys_common"])),count.index))}"
   map_public_ip_on_launch         = false
   ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.external.org.result["sys_common_v6"]),count.index))}"
   assign_ipv6_address_on_creation = true
@@ -285,7 +285,7 @@ resource "aws_route_table" "common" {
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(split(" ",data.external.org.result["sys_nat"]),count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(coalescelist(var.nat_subnets,split(" ",data.external.org.result["sys_nat"])),count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
 
