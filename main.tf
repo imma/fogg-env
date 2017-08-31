@@ -678,10 +678,10 @@ resource "aws_codecommit_repository" "env" {
   description     = "Repo for ${var.env_name} env"
 }
 
-#data "aws_acm_certificate" "env" {
-#  domain   = "*.${aws_route53_zone.private.name}"
-#  statuses = ["ISSUED", "PENDING_VALIDATION"]
-#}
+data "aws_acm_certificate" "env" {
+  domain   = "*.${data.terraform_remote_state.org.domain_name}"
+  statuses = ["ISSUED", "PENDING_VALIDATION"]
+}
 
 resource "aws_api_gateway_rest_api" "env" {
   name = "${var.env_name}"
