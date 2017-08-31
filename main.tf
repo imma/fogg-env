@@ -679,8 +679,7 @@ resource "aws_codecommit_repository" "env" {
 }
 
 data "aws_acm_certificate" "env" {
-  provider = "aws.us_east_1"
-  domain   = "${aws_route53_zone.private.name}"
+  domain   = "*.${aws_route53_zone.private.name}"
   statuses = ["ISSUED", "PENDING_VALIDATION"]
 }
 
@@ -690,7 +689,7 @@ resource "aws_api_gateway_rest_api" "env" {
 
 resource "aws_api_gateway_domain_name" "env" {
   domain_name     = "${aws_route53_zone.private.name}"
-  certificate_arn = "${data.aws_acm_certificate.env.arn}"
+  certificate_arn = "${data.terraform_remote_state.org.wildcard_cert}"
 }
 
 resource "aws_route53_record" "env_api_gateway" {
