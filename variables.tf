@@ -220,6 +220,10 @@ variable "want_nat" {
   default = "1"
 }
 
+variable "want_nat_eip" {
+  default = "1"
+}
+
 variable "nat_count" {
   default = "0"
 }
@@ -241,6 +245,10 @@ output "nat_interfaces" {
 }
 
 variable "want_vpn" {
+  default = "1"
+}
+
+variable "want_vpn_eip" {
   default = "1"
 }
 

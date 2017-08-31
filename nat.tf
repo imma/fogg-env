@@ -10,6 +10,7 @@ module "nat" {
 
   network_name    = "nat"
   interface_count = "${var.nat_interface_count}"
+  want_eip        = "${var.want_nat_eip}"
 }
 
 resource "aws_security_group_rule" "forward_allow_ping" {

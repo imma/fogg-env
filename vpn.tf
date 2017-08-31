@@ -10,6 +10,7 @@ module "vpn" {
 
   network_name    = "vpn"
   interface_count = "${var.vpn_interface_count}"
+  want_eip        = "${var.want_vpn_eip}"
 }
 
 resource "aws_route" "nat_vpn_eni" {

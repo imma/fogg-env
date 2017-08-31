@@ -11,6 +11,10 @@ variable "subnets" {
   default = []
 }
 
+variable "want_eip" {
+  default = 1
+}
+
 variable "interface_count" {
   default = 0
 }

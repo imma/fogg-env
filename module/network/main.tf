@@ -36,13 +36,13 @@ resource "aws_network_interface" "network" {
 
 resource "aws_eip" "network" {
   vpc   = true
-  count = "${var.interface_count}"
+  count = "${var.interface_count*var.want_eip}"
 }
 
 resource "aws_eip_association" "network" {
   network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
   allocation_id        = "${element(aws_eip.network.*.id,count.index)}"
-  count                = "${var.interface_count}"
+  count                = "${var.interface_count*var.want_eip}"
 }
 
 resource "aws_security_group" "network" {
