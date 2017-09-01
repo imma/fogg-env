@@ -1,21 +1,3 @@
-data "aws_ami" "block" {
-  most_recent = true
-
-  filter {
-    name   = "state"
-    values = ["available"]
-  }
-
-  filter {
-    name   = "tag:Block"
-    values = ["block-ubuntu-*"]
-  }
-
-  owners = ["self"]
-}
-
-data "aws_caller_identity" "current" {}
-
 data "aws_vpc" "current" {
   id = "${var.vpc_id}"
 }
