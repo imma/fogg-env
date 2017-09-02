@@ -39,6 +39,7 @@ module "env" {
 }
 
 resource "aws_api_gateway_deployment" "env" {
+  depends_on  = ["module.env.method"]
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "live"
 }
