@@ -217,11 +217,11 @@ variable "want_admin" {
 }
 
 variable "want_nat" {
-  default = "1"
+  default = "0"
 }
 
 variable "want_nat_eip" {
-  default = "1"
+  default = "0"
 }
 
 variable "nat_count" {
@@ -249,7 +249,7 @@ variable "want_vpn" {
 }
 
 variable "want_vpn_eip" {
-  default = "1"
+  default = "0"
 }
 
 variable "vpn_interface_count" {
