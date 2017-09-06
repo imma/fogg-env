@@ -52,7 +52,7 @@ resource "aws_route53_record" "env_api_gateway_private" {
 }
 
 locals {
-  deployment_zip = ["${split("/","${path.module}/deployment.zip"))}"]
+  deployment_zip = ["${split("/","${path.module}/deployment.zip")}"]
 }
 
 module "fn" {
