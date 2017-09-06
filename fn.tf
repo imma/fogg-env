@@ -51,12 +51,16 @@ resource "aws_route53_record" "env_api_gateway_private" {
   }
 }
 
+locals {
+  deployment_zip = "${path.module}/deployment.zip"
+}
+
 module "fn" {
   source         = "git@github.com:imma/fogg-api-gateway//module/fn"
   function_name  = "${var.env_name}-fn"
   source_arn     = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.env.id}/*/*/*"
   role           = "${aws_iam_role.fn.arn}"
-  deployment_zip = "${path.module}/deployment.zip"
+  deployment_zip = "${join("/",slice(split("/",local.deployment_zip),length(local.deployment_zip)-4,length(local.deployment_zip)-1))}"
   unique_prefix  = "${aws_api_gateway_rest_api.env.id}-${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
