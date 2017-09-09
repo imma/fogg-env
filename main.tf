@@ -49,7 +49,7 @@ resource "aws_vpc" "env" {
 }
 
 resource "aws_security_group" "env" {
-  name        = "${var.env_name}"
+  name_prefix = "${var.env_name}-"
   description = "Environment ${var.env_name}"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -70,7 +70,7 @@ resource "aws_security_group_rule" "env_egress" {
 }
 
 resource "aws_security_group" "env_private" {
-  name        = "${var.env_name}-private"
+  name_prefix = "${var.env_name}-private-"
   description = "Environment ${var.env_name} Private"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -82,7 +82,7 @@ resource "aws_security_group" "env_private" {
 }
 
 resource "aws_security_group" "env_public" {
-  name        = "${var.env_name}-public"
+  name_prefix = "${var.env_name}-public-"
   description = "Environment ${var.env_name} Public"
   vpc_id      = "${aws_vpc.env.id}"
 
