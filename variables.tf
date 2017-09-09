@@ -60,6 +60,10 @@ variable "want_kms" {
   default = "0"
 }
 
+variable "want_nlb" {
+  default = "0"
+}
+
 variable "want_digitalocean" {
   default = "0"
 }
@@ -124,24 +128,8 @@ output "s3_env_s3" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
 }
 
-output "s3_env_lb" {
-  value = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-lb"
-}
-
 output "s3_env_ses" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses"
-}
-
-output "sg_env_lb" {
-  value = "${aws_security_group.env_lb.id}"
-}
-
-output "sg_env_lb_private" {
-  value = "${aws_security_group.env_lb_private.id}"
-}
-
-output "sg_env_lb_public" {
-  value = "${aws_security_group.env_lb_public.id}"
 }
 
 output "nat_gateways" {
