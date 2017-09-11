@@ -49,7 +49,7 @@ resource "aws_vpc" "env" {
 }
 
 resource "aws_security_group" "env" {
-  name        = "${var.env_name}"
+  name_prefix = "${var.env_name}-"
   description = "Environment ${var.env_name}"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -70,7 +70,7 @@ resource "aws_security_group_rule" "env_egress" {
 }
 
 resource "aws_security_group" "env_private" {
-  name        = "${var.env_name}-private"
+  name_prefix = "${var.env_name}-private-"
   description = "Environment ${var.env_name} Private"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -82,59 +82,12 @@ resource "aws_security_group" "env_private" {
 }
 
 resource "aws_security_group" "env_public" {
-  name        = "${var.env_name}-public"
+  name_prefix = "${var.env_name}-public-"
   description = "Environment ${var.env_name} Public"
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
     "Name"      = "${var.env_name}-public"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-    "Network"   = "public"
-  }
-}
-
-resource "aws_security_group" "env_lb" {
-  name        = "${var.env_name}-lb"
-  description = "Environment ${var.env_name} LB"
-  vpc_id      = "${aws_vpc.env.id}"
-
-  tags {
-    "Name"      = "${var.env_name}-lb"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-  }
-}
-
-resource "aws_security_group_rule" "env_lb_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.env_lb.id}"
-}
-
-resource "aws_security_group" "env_lb_private" {
-  name        = "${var.env_name}-lb-private"
-  description = "Environment ${var.env_name} LB Private"
-  vpc_id      = "${aws_vpc.env.id}"
-
-  tags {
-    "Name"      = "${var.env_name}-lb-private"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-    "Network"   = "public"
-  }
-}
-
-resource "aws_security_group" "env_lb_public" {
-  name        = "${var.env_name}-lb-public"
-  description = "Environment ${var.env_name} LB Public"
-  vpc_id      = "${aws_vpc.env.id}"
-
-  tags {
-    "Name"      = "${var.env_name}-lb-public"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
@@ -372,42 +325,6 @@ resource "aws_route53_record" "efs" {
   ttl     = "60"
   records = ["${element(module.efs.efs_dns_names,count.index)}"]
   count   = "${var.want_efs}"
-}
-
-resource "aws_s3_bucket" "lb" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-lb"
-  acl    = "private"
-
-  depends_on = ["aws_s3_bucket.s3"]
-
-  versioning {
-    enabled = true
-  }
-
-  logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
-    target_prefix = "log/"
-  }
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Sid": "",
-    "Action": "s3:PutObject",
-    "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-lb/*",
-    "Principal": {
-      "AWS": "arn:aws:iam::${lookup(data.external.org.result,"aws_account_${var.env_name}")}:root"
-    }
-  }]
-}
-EOF
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "${var.env_name}"
-  }
 }
 
 resource "aws_cloudwatch_log_group" "flow_log" {
