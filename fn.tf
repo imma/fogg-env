@@ -52,16 +52,17 @@ resource "aws_route53_record" "env_api_gateway_private" {
 }
 
 locals {
-  deployment_zip = ["${split("/","${path.module}/deployment.zip")}"]
+  deployment_zip  = ["${split("/","${path.module}/deployment.zip")}"]
+  deployment_file = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-4,length(local.deployment_zip)))}"
 }
 
 resource "aws_lambda_function" "env" {
-  filename         = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-4,length(local.deployment_zip)))}"
+  filename         = "${local.deployment_file}"
   function_name    = "${var.env_name}"
   role             = "${aws_iam_role.fn.arn}"
   handler          = "app.app"
   runtime          = "python3.6"
-  source_code_hash = "${base64sha256(file("${var.deployment_zip}"))}"
+  source_code_hash = "${base64sha256(file("${local.deployment_file}"))}"
   publish          = true
 }
 
