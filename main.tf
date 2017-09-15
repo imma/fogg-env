@@ -377,8 +377,9 @@ resource "aws_flow_log" "env" {
 }
 
 resource "aws_s3_bucket" "meta" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-meta"
-  acl    = "log-delivery-write"
+  bucket        = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-meta"
+  acl           = "log-delivery-write"
+  force_destroy = true
 
   versioning {
     enabled = true
@@ -391,8 +392,9 @@ resource "aws_s3_bucket" "meta" {
 }
 
 resource "aws_s3_bucket" "s3" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
-  acl    = "log-delivery-write"
+  bucket        = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
+  acl           = "log-delivery-write"
+  force_destroy = true
 
   depends_on = ["aws_s3_bucket.meta"]
 
@@ -412,8 +414,9 @@ resource "aws_s3_bucket" "s3" {
 }
 
 resource "aws_s3_bucket" "ses" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses"
-  acl    = "private"
+  bucket        = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses"
+  acl           = "private"
+  force_destroy = true
 
   depends_on = ["aws_s3_bucket.s3"]
 
@@ -453,8 +456,9 @@ EOF
 }
 
 resource "aws_s3_bucket" "ssm" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm"
-  acl    = "private"
+  bucket        = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm"
+  acl           = "private"
+  force_destroy = true
 
   depends_on = ["aws_s3_bucket.s3"]
 
