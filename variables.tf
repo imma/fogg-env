@@ -2,10 +2,6 @@ variable "env_name" {}
 
 variable "region" {}
 
-variable "org" {
-  default = []
-}
-
 variable "az_count" {}
 
 variable "nat_bits" {
