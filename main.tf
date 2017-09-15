@@ -118,13 +118,11 @@ resource "null_resource" "fake" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id                          = "${aws_vpc.env.id}"
-  availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(coalescelist(var.public_subnets,split(" ",data.external.org.result["sys_public"])),count.index))}"
-  map_public_ip_on_launch         = true
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.external.org.result["sys_public_v6"]),count.index))}"
-  assign_ipv6_address_on_creation = true
-  count                           = "${var.az_count}"
+  vpc_id                  = "${aws_vpc.env.id}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(var.public_subnets,count.index))}"
+  map_public_ip_on_launch = true
+  count                   = "${var.az_count}"
 
   tags {
     "Name"      = "${var.env_name}-public"
@@ -138,13 +136,6 @@ resource "aws_route" "public" {
   route_table_id         = "${aws_route_table.public.id}"
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${aws_internet_gateway.env.id}"
-}
-
-resource "aws_route" "public_v6" {
-  route_table_id              = "${aws_route_table.public.id}"
-  destination_ipv6_cidr_block = "::/0"
-  egress_only_gateway_id      = "${aws_egress_only_internet_gateway.env.id}"
-  count                       = 0
 }
 
 resource "aws_route_table_association" "public" {
@@ -176,60 +167,51 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_subnet" "common" {
-  vpc_id                          = "${aws_vpc.env.id}"
-  availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(coalescelist(var.common_subnets,split(" ",data.external.org.result["sys_common"])),count.index))}"
-  map_public_ip_on_launch         = false
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,8,element(split(" ",data.external.org.result["sys_common_v6"]),count.index))}"
-  assign_ipv6_address_on_creation = true
-  count                           = "${var.az_count}"
+resource "aws_subnet" "private" {
+  vpc_id                  = "${aws_vpc.env.id}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.private_bits,element(var.private_subnets,count.index))}"
+  map_public_ip_on_launch = false
+  count                   = "${var.az_count}"
 
   tags {
-    "Name"      = "${var.env_name}-common"
+    "Name"      = "${var.env_name}-private"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
 }
 
-resource "aws_route" "common" {
-  route_table_id         = "${element(aws_route_table.common.*.id,count.index)}"
+resource "aws_route" "private" {
+  route_table_id         = "${element(aws_route_table.private.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
   count                  = "${var.want_nat*var.az_count}"
 }
 
-resource "aws_route" "common_v6" {
-  route_table_id              = "${aws_route_table.common.id}"
-  destination_ipv6_cidr_block = "::/0"
-  egress_only_gateway_id      = "${aws_egress_only_internet_gateway.env.id}"
-  count                       = 0
-}
-
-resource "aws_route_table_association" "common" {
-  subnet_id      = "${element(aws_subnet.common.*.id,count.index)}"
-  route_table_id = "${element(aws_route_table.common.*.id,count.index)}"
+resource "aws_route_table_association" "private" {
+  subnet_id      = "${element(aws_subnet.private.*.id,count.index)}"
+  route_table_id = "${element(aws_route_table.private.*.id,count.index)}"
   count          = "${var.az_count}"
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3_common" {
+resource "aws_vpc_endpoint_route_table_association" "s3_private" {
   vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
-  route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
+  route_table_id  = "${element(aws_route_table.private.*.id,count.index)}"
   count           = "${var.az_count}"
 }
 
-resource "aws_vpc_endpoint_route_table_association" "dynamodb_common" {
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_private" {
   vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb.id}"
-  route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
+  route_table_id  = "${element(aws_route_table.private.*.id,count.index)}"
   count           = "${var.az_count}"
 }
 
-resource "aws_route_table" "common" {
+resource "aws_route_table" "private" {
   vpc_id = "${aws_vpc.env.id}"
   count  = "${var.az_count}"
 
   tags {
-    "Name"      = "${var.env_name}-common"
+    "Name"      = "${var.env_name}-private"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -238,7 +220,7 @@ resource "aws_route_table" "common" {
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(coalescelist(var.nat_subnets,split(" ",data.external.org.result["sys_nat"])),count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(var.nat_subnets,count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
 
@@ -313,7 +295,7 @@ module "efs" {
   efs_name = "${var.env_name}"
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"
-  subnets  = ["${aws_subnet.common.*.id}"]
+  subnets  = ["${aws_subnet.private.*.id}"]
   az_count = "${var.az_count}"
   want_efs = "${var.want_efs}"
 }

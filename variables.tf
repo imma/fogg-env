@@ -24,11 +24,11 @@ variable "public_subnets" {
   default = []
 }
 
-variable "common_bits" {
+variable "private_bits" {
   default = "8"
 }
 
-variable "common_subnets" {
+variable "private_subnets" {
   default = []
 }
 
@@ -144,8 +144,8 @@ output "public_subnets" {
   value = ["${aws_subnet.public.*.id}"]
 }
 
-output "common_subnets" {
-  value = ["${aws_subnet.common.*.id}"]
+output "private_subnets" {
+  value = ["${aws_subnet.private.*.id}"]
 }
 
 output "fake_subnets" {
@@ -165,7 +165,7 @@ output "do_ssh_key" {
 }
 
 output "route_tables" {
-  value = ["${concat(aws_route_table.common.*.id,aws_route_table.public.*.id,aws_route_table.nat.*.id)}"]
+  value = ["${concat(aws_route_table.private.*.id,aws_route_table.public.*.id,aws_route_table.nat.*.id)}"]
 }
 
 output "s3_endpoint_id" {
@@ -198,10 +198,6 @@ output "api_gateway" {
 
 output "api_gateway_resource" {
   value = "${aws_api_gateway_rest_api.env.root_resource_id}"
-}
-
-variable "want_admin" {
-  default = "0"
 }
 
 variable "want_nat" {
