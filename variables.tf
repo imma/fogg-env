@@ -4,6 +4,8 @@ variable "region" {}
 
 variable "az_count" {}
 
+variable "cidr" {}
+
 variable "nat_bits" {
   default = "12"
 }
