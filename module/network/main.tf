@@ -33,7 +33,7 @@ resource "aws_security_group" "network" {
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${var.env_name}-${var.network_name}"
+    "Name"      = "${var.env_name}-network-${var.network_name}"
     "Env"       = "${var.env_name}"
     "App"       = "network"
     "Service"   = "${var.network_name}"
