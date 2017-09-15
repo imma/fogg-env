@@ -23,10 +23,6 @@ data "terraform_remote_state" "org" {
   }
 }
 
-data "external" "org" {
-  program = ["${var.org}"]
-}
-
 data "aws_vpc" "current" {
   id = "${aws_vpc.env.id}"
 }
@@ -36,7 +32,7 @@ data "aws_availability_zones" "azs" {}
 data "aws_partition" "current" {}
 
 resource "aws_vpc" "env" {
-  cidr_block                       = "${data.external.org.result["cidr_${var.env_name}"]}"
+  cidr_block                       = "${var.cidr}"
   enable_dns_support               = true
   enable_dns_hostnames             = true
   assign_generated_ipv6_cidr_block = true
