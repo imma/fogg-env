@@ -70,10 +70,6 @@ variable "want_packet" {
   default = "0"
 }
 
-variable "public_key" {
-  default = "module/init/ssh-key-pair.pub"
-}
-
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
@@ -152,14 +148,6 @@ output "fake_subnets" {
 
 output "env_name" {
   value = "${var.env_name}"
-}
-
-output "key_name" {
-  value = "${aws_key_pair.service.key_name}"
-}
-
-output "do_ssh_key" {
-  value = "${digitalocean_ssh_key.service.id}"
 }
 
 output "route_tables" {
