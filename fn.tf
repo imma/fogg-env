@@ -66,43 +66,42 @@ resource "aws_lambda_function" "env" {
   publish          = true
 }
 
-module "fn" {
+module "live_fn" {
   source           = "git@github.com:imma/fogg-api-gateway//module/fn"
   function_name    = "${aws_lambda_function.env.function_name}"
   function_arn     = "${aws_lambda_function.env.arn}"
-  invoke_arn       = "${aws_lambda_function.env.invoke_arn}"
   function_version = "${aws_lambda_function.env.version}"
   source_arn       = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.env.id}/*/*/*"
   unique_prefix    = "${aws_api_gateway_rest_api.env.id}-${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-module "env" {
+module "live" {
   source = "git@github.com:imma/fogg-api-gateway//module/resource"
 
   http_method = "POST"
   api_name    = "hello"
-  invoke_arn  = "${module.fn.invoke_arn}"
+  invoke_arn  = "${module.live_fn.live_arn}"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-resource "aws_api_gateway_base_path_mapping" "env" {
-  depends_on  = ["aws_api_gateway_deployment.env"]
+resource "aws_api_gateway_base_path_mapping" "live" {
+  depends_on  = ["aws_api_gateway_deployment.live"]
   api_id      = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "live"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
 }
 
-resource "aws_api_gateway_deployment" "env" {
-  depends_on  = ["module.env"]
+resource "aws_api_gateway_deployment" "live" {
+  depends_on  = ["module.live"]
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "live"
 }
 
-resource "aws_api_gateway_method_settings" "env" {
+resource "aws_api_gateway_method_settings" "live" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "${aws_api_gateway_deployment.env.stage_name}"
+  stage_name  = "${aws_api_gateway_deployment.live.stage_name}"
   method_path = "*/*"
 
   settings {
