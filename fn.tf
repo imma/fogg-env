@@ -80,7 +80,7 @@ module "live" {
 
   http_method = "POST"
   api_name    = "hello"
-  invoke_arn  = "${module.live_fn.live_arn}"
+  invoke_arn  = "${aws_lambda_function.env.invoke_arn}"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
