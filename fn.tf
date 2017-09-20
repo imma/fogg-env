@@ -97,6 +97,10 @@ resource "aws_api_gateway_deployment" "live" {
   depends_on  = ["module.live"]
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "live"
+
+  vars {
+    alias = "live"
+  }
 }
 
 resource "aws_api_gateway_method_settings" "live" {
