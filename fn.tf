@@ -86,13 +86,6 @@ module "live" {
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-resource "aws_api_gateway_base_path_mapping" "live" {
-  depends_on  = ["aws_api_gateway_deployment.live"]
-  api_id      = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "live"
-  domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
-}
-
 resource "aws_api_gateway_deployment" "live" {
   depends_on  = ["module.live"]
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
@@ -103,9 +96,47 @@ resource "aws_api_gateway_deployment" "live" {
   }
 }
 
+resource "aws_api_gateway_base_path_mapping" "live" {
+  depends_on  = ["aws_api_gateway_deployment.live"]
+  api_id      = "${aws_api_gateway_rest_api.env.id}"
+  stage_name  = "live"
+  domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
+  basepath = "/"
+}
+
 resource "aws_api_gateway_method_settings" "live" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "${aws_api_gateway_deployment.live.stage_name}"
+  method_path = "*/*"
+
+  settings {
+    metrics_enabled    = true
+    logging_level      = "INFO"
+    data_trace_enabled = true
+  }
+}
+
+resource "aws_api_gateway_deployment" "rc" {
+  depends_on  = ["module.live"]
+  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
+  stage_name  = "rc"
+
+  variables {
+    alias = "rc"
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "rc" {
+  depends_on  = ["aws_api_gateway_deployment.rc"]
+  api_id      = "${aws_api_gateway_rest_api.env.id}"
+  stage_name  = "rc"
+  domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
+  basepath = "/rc"
+}
+
+resource "aws_api_gateway_method_settings" "rc" {
+  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
+  stage_name  = "${aws_api_gateway_deployment.rc.stage_name}"
   method_path = "*/*"
 
   settings {
