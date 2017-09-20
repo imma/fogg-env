@@ -98,7 +98,7 @@ resource "aws_api_gateway_deployment" "live" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "live"
 
-  vars {
+  variables {
     alias = "live"
   }
 }
