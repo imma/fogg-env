@@ -130,7 +130,7 @@ resource "aws_api_gateway_base_path_mapping" "rc" {
   api_id      = "${aws_api_gateway_rest_api.env.id}"
   stage_name  = "rc"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
-  base_path = "/rc"
+  base_path = "rc"
 }
 
 resource "aws_api_gateway_method_settings" "rc" {
