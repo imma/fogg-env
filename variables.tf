@@ -6,14 +6,6 @@ variable "az_count" {}
 
 variable "cidr" {}
 
-variable "nat_bits" {
-  default = "12"
-}
-
-variable "nat_subnets" {
-  default = []
-}
-
 variable "public_bits" {
   default = "8"
 }
@@ -102,14 +94,6 @@ output "sg_env" {
   value = "${aws_security_group.env.id}"
 }
 
-output "sg_env_private" {
-  value = "${aws_security_group.env_private.id}"
-}
-
-output "sg_env_public" {
-  value = "${aws_security_group.env_public.id}"
-}
-
 output "s3_bucket_prefix" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}"
 }
@@ -130,10 +114,6 @@ output "nat_gateways" {
   value = ["${aws_nat_gateway.env.*.id}"]
 }
 
-output "nat_subnets" {
-  value = ["${aws_subnet.nat.*.id}"]
-}
-
 output "public_subnets" {
   value = ["${aws_subnet.public.*.id}"]
 }
@@ -151,7 +131,7 @@ output "env_name" {
 }
 
 output "route_tables" {
-  value = ["${concat(aws_route_table.private.*.id,aws_route_table.public.*.id,aws_route_table.nat.*.id)}"]
+  value = ["${concat(aws_route_table.private.*.id,aws_route_table.public.*.id)}"]
 }
 
 output "s3_endpoint_id" {

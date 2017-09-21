@@ -4,9 +4,8 @@ module "nat" {
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"
 
-  env_sg        = "${aws_security_group.env.id}"
-  env_public_sg = "${aws_security_group.env_public.id}"
-  subnets       = ["${aws_subnet.nat.*.id}"]
+  env_sg  = "${aws_security_group.env.id}"
+  subnets = ["${aws_subnet.private.*.id}"]
 
   network_name    = "nat"
   interface_count = "${var.nat_interface_count}"

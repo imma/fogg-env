@@ -47,12 +47,6 @@ resource "aws_network_interface_sg_attachment" "env" {
   count                = "${var.interface_count}"
 }
 
-resource "aws_network_interface_sg_attachment" "env_public" {
-  security_group_id    = "${var.env_public_sg}"
-  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
-  count                = "${var.interface_count}"
-}
-
 resource "aws_network_interface_sg_attachment" "env_network" {
   security_group_id    = "${aws_security_group.network.id}"
   network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"

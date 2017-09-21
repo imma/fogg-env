@@ -4,9 +4,8 @@ module "vpn" {
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"
 
-  env_sg        = "${aws_security_group.env.id}"
-  env_public_sg = "${aws_security_group.env_public.id}"
-  subnets       = ["${aws_subnet.nat.*.id}"]
+  env_sg  = "${aws_security_group.env.id}"
+  subnets = ["${aws_subnet.private.*.id}"]
 
   network_name    = "vpn"
   interface_count = "${var.vpn_interface_count}"
@@ -14,7 +13,7 @@ module "vpn" {
 }
 
 resource "aws_route" "nat_vpn_eni" {
-  route_table_id         = "${aws_route_table.nat.id}"
+  route_table_id         = "${aws_route_table.private.id}"
   destination_cidr_block = "10.8.0.0/24"
   network_interface_id   = "${element(module.vpn.interfaces,count.index)}"
   count                  = 1

@@ -65,31 +65,6 @@ resource "aws_security_group_rule" "env_egress" {
   security_group_id = "${aws_security_group.env.id}"
 }
 
-resource "aws_security_group" "env_private" {
-  name        = "${var.env_name}-private"
-  description = "Environment ${var.env_name} Private"
-  vpc_id      = "${aws_vpc.env.id}"
-
-  tags {
-    "Name"      = "${var.env_name}-private"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-  }
-}
-
-resource "aws_security_group" "env_public" {
-  name        = "${var.env_name}-public"
-  description = "Environment ${var.env_name} Public"
-  vpc_id      = "${aws_vpc.env.id}"
-
-  tags {
-    "Name"      = "${var.env_name}-public"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-    "Network"   = "public"
-  }
-}
-
 resource "aws_internet_gateway" "env" {
   vpc_id = "${aws_vpc.env.id}"
 
@@ -213,60 +188,10 @@ resource "aws_route_table" "private" {
   }
 }
 
-resource "aws_subnet" "nat" {
-  vpc_id                  = "${aws_vpc.env.id}"
-  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(var.nat_subnets,count.index))}"
-  map_public_ip_on_launch = true
-  count                   = "${var.az_count}"
-
-  tags {
-    "Name"      = "${var.env_name}-nat"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-    "Network"   = "public"
-  }
-}
-
-resource "aws_route" "nat" {
-  route_table_id         = "${aws_route_table.nat.id}"
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.env.id}"
-}
-
-resource "aws_route_table_association" "nat" {
-  subnet_id      = "${element(aws_subnet.nat.*.id,count.index)}"
-  route_table_id = "${element(aws_route_table.nat.*.id,count.index)}"
-  count          = "${var.az_count}"
-}
-
-resource "aws_vpc_endpoint_route_table_association" "s3_nat" {
-  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
-  route_table_id  = "${element(aws_route_table.nat.*.id,count.index)}"
-  count           = "${var.az_count}"
-}
-
-resource "aws_vpc_endpoint_route_table_association" "dynamodb_nat" {
-  vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb.id}"
-  route_table_id  = "${element(aws_route_table.nat.*.id,count.index)}"
-  count           = "${var.az_count}"
-}
-
 resource "aws_nat_gateway" "env" {
-  subnet_id     = "${element(aws_subnet.nat.*.id,count.index)}"
+  subnet_id     = "${element(aws_subnet.public.*.id,count.index)}"
   allocation_id = "${element(module.nat.allocation_id,count.index)}"
   count         = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"
-}
-
-resource "aws_route_table" "nat" {
-  vpc_id = "${aws_vpc.env.id}"
-
-  tags {
-    "Name"      = "${var.env_name}-nat"
-    "Env"       = "${var.env_name}"
-    "ManagedBy" = "terraform"
-    "Network"   = "public"
-  }
 }
 
 resource "aws_route53_zone" "private" {

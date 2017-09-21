@@ -5,8 +5,6 @@ variable "env_name" {}
 
 variable "env_sg" {}
 
-variable "env_public_sg" {}
-
 variable "subnets" {
   default = []
 }
