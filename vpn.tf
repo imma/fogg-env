@@ -12,13 +12,6 @@ module "vpn" {
   want_eip        = "${var.want_vpn_eip}"
 }
 
-resource "aws_route" "nat_vpn_eni" {
-  route_table_id         = "${aws_route_table.private.id}"
-  destination_cidr_block = "10.8.0.0/24"
-  network_interface_id   = "${element(module.vpn.interfaces,count.index)}"
-  count                  = 1
-}
-
 resource "aws_security_group_rule" "vpn_tcp" {
   type              = "ingress"
   from_port         = 0
