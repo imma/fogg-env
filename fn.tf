@@ -100,8 +100,6 @@ module "stage_live" {
 }
 
 module "stage_rc" {
-  depends_on = ["module.env_hello"]
-
   source = "git@github.com:imma/fogg-api-gateway//module/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
