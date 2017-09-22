@@ -70,7 +70,7 @@ resource "aws_lambda_function" "env" {
   }
 }
 
-module "env_fn" {
+module "fn_hello" {
   source           = "git@github.com:imma/fogg-api-gateway//module/fn"
   function_name    = "${aws_lambda_function.env.function_name}"
   function_arn     = "${aws_lambda_function.env.arn}"
@@ -79,7 +79,7 @@ module "env_fn" {
   unique_prefix    = "${aws_api_gateway_rest_api.env.id}-${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-module "env_hello" {
+module "resource_hello" {
   source = "git@github.com:imma/fogg-api-gateway//module/resource"
 
   http_method = "POST"
@@ -96,7 +96,6 @@ module "stage_live" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   stage_name  = "live"
-  resource    = "${module.env_hello.resource}"
 }
 
 module "stage_rc" {
@@ -105,5 +104,4 @@ module "stage_rc" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   stage_name  = "rc"
-  resource    = "${module.env_hello.resource}"
 }
