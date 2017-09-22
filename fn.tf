@@ -90,17 +90,16 @@ module "env_hello" {
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-module "stage-live" {
-  depends_on = ["module.env_hello"]
-
+module "stage_live" {
   source = "git@github.com:imma/fogg-api-gateway//module/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   stage_name  = "live"
+  resource    = "${module.env_hello.resource}"
 }
 
-module "stage-rc" {
+module "stage_rc" {
   depends_on = ["module.env_hello"]
 
   source = "git@github.com:imma/fogg-api-gateway//module/stage"
@@ -108,4 +107,5 @@ module "stage-rc" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   stage_name  = "rc"
+  resource    = "${module.env_hello.resource}"
 }
