@@ -77,10 +77,6 @@ module "fn_hello" {
   function_version = "${aws_lambda_function.env.version}"
   source_arn       = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.env.id}/*/*/*"
   unique_prefix    = "${aws_api_gateway_rest_api.env.id}-${aws_api_gateway_rest_api.env.root_resource_id}"
-
-  lifecycle {
-    ignore_changes = ["function_version"]
-  }
 }
 
 module "resource_hello" {
@@ -92,10 +88,6 @@ module "resource_hello" {
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
-
-  lifecycle {
-    ignore_changes = ["function_version"]
-  }
 }
 
 module "stage_rc" {
