@@ -9,5 +9,11 @@ app = Chalice(app_name=nm_app)
 app.debug = True
 
 @app.route("/%s" % nm_app, methods=['GET','POST'])
-def index():
+def hello():
     return {'hello': 'world'}
+
+@app.route("/%s/{ps+}" % nm_app, methods=['GET','POST'])
+def hello_all():
+    return {
+        'uri_params': app.current_request.uri_params
+    }
