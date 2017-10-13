@@ -1,7 +1,13 @@
+import os
 from chalice import Chalice
 
-app = Chalice(app_name='hello')
+f = open(os.path.join(os.path.dirname(__file__), 'chalicelib', '.app-name'))
+nm_app = f.read().strip()
+f.close()
 
-@app.route('*')
+app = Chalice(app_name=nm_app)
+app.debug = True
+
+@app.route("/%s" % nm_app, methods=['GET','POST'])
 def index():
     return {'hello': 'world'}
