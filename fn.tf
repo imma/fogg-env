@@ -82,7 +82,7 @@ module "fn_hello" {
 module "resource_hello" {
   source = "git@github.com:imma/fogg-api-gateway//module/resource"
 
-  http_method = "POST"
+  http_method = "GET"
   api_name    = "hello"
   invoke_arn  = "${aws_lambda_function.env.invoke_arn}"
 
