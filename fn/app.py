@@ -8,7 +8,7 @@ f.close()
 app = Chalice(app_name=nm_app)
 app.debug = True
 
-@app.route("/%s" % nm_app, methods=['GET','POST'])
+@app.route("/%s" % nm_app, methods=['GET'])
 def hello():
     return {'hello': 'world'}
 

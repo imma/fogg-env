@@ -52,8 +52,8 @@ resource "aws_route53_record" "env_api_gateway_private" {
 }
 
 locals {
-  deployment_zip  = ["${split("/","${path.module}/dist/deployment.zip")}"]
-  deployment_file = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-5,length(local.deployment_zip)))}"
+  deployment_zip  = ["${split("/","${path.module}/fn/dist/deployment.zip")}"]
+  deployment_file = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-6,length(local.deployment_zip)))}"
 }
 
 resource "aws_lambda_function" "env" {
