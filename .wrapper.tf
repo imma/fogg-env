@@ -1,5 +1,5 @@
 module "env" {
-  source = "git@github.com:imma/fogg-env"
+  source = "module/imma/fogg-env"
 
   global_bucket = "${var.remote_bucket}"
   global_key    = "${var.remote_org_path}"
